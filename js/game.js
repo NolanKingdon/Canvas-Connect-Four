@@ -20,9 +20,8 @@ window.onload = function() {
     var chipArray = [];
     //start color
     var color = "red";
-    
-    console.log(boardHeight, " ", boardWidth);
-    
+    var columnList = {}
+        
     canvas.width = innerWidth;
     canvas.height = innerHeight;
 
@@ -55,6 +54,12 @@ window.onload = function() {
             c.stroke();
             lineCoordsX.push(boardWidth*i);
         }
+        for(var i = 0; i<lineCoordsX.length; i++) {
+            if(i!=lineCoordsX.length-1){
+                columnList [(lineCoordsX[i]+lineCoordsX[i+1])/2] = 0;
+            }
+        }
+        console.log(columnList);
     }    
     canvas.addEventListener("click", function(e){
         var xCount = 0;
@@ -83,6 +88,33 @@ window.onload = function() {
         //Need to now check: 
             //If anything is in the bottom of the column
             //If anything is in the column clicked
+        //Going to re-do this with a column JSON formatter to be more efficient in the future. Right now, I'm using it to determine if the chip goes to the bottom and keeping my old messy/ineffiecient code.
+        if(columnList [newCoords.x] == 0){
+            newCoords.y = (lineCoordsY[lineCoordsY.length-1] + lineCoordsY[lineCoordsY.length-2])/2
+            columnList [newCoords.x] +=1;
+        } else {
+            for(var i = 0; i<chipArray.length; i++) {
+                //Checking to see if anything is in the same position
+                if(newCoords.x == chipArray[i].x && newCoords.y == chipArray[i].y){
+                    //popping it up to the top if there is
+                    newCoords.y -= boardHeight;
+                // If there is not a chip at the tile...
+                } else if (newCoords.x == chipArray[i].x && newCoords.y != chipArray[i].y){
+                    //We check for as long as necessary down the column until we find an occupied space
+                    while(true) {
+                        newCoords.y += boardHeight;
+                        if(newCoords.x == chipArray[i].x && newCoords.y != chipArray[i].y){
+                            continue;
+                        //when we find the occupied space, we backtrack one, and put the chip there.
+                        } else if (newCoords.x == chipArray[i].x && newCoords.y == chipArray[i].y){
+                            newCoords.y-= boardHeight;
+                            break;
+                        } 
+                    }
+                } 
+            }
+            columnList [newCoords.x] +=1;
+        }
         if(color == "red") {
             chipArray.push(new Chip(newCoords.x, newCoords.y, "red", 40))
             chipArray[chipArray.length-1].create();
@@ -94,10 +126,11 @@ window.onload = function() {
         }
     })
     
+    function winChecker() {
+        
+    }
     //"Main"
-    drawGrid()  
-    
-    
+    drawGrid()
 }
 
 
