@@ -9,10 +9,6 @@ window.onload = function() {
     var boardWidth = Math.ceil(innerWidth/7);
     var lineCoordsX = []
     var lineCoordsY = []
-    var clickCoords = [
-        x = undefined,
-        y = undefined
-    ];
     var newCoords = [
         x = undefined,
         y = undefined
@@ -59,8 +55,8 @@ window.onload = function() {
                 columnList [(lineCoordsX[i]+lineCoordsX[i+1])/2] = 0;
             }
         }
-        console.log(columnList);
-    }    
+    }   
+    
     canvas.addEventListener("click", function(e){
         var xCount = 0;
         //Centering the Chips
@@ -84,15 +80,13 @@ window.onload = function() {
                 break;
             }
         }
-        //Checking color
-        //Need to now check: 
-            //If anything is in the bottom of the column
-            //If anything is in the column clicked
-        //Going to re-do this with a column JSON formatter to be more efficient in the future. Right now, I'm using it to determine if the chip goes to the bottom and keeping my old messy/ineffiecient code.
+    //Going to re-do this with a column JSON formatter to be more efficient in the future. Right now, I'm using it to determine if the chip goes to the bottom and keeping my old messy/ineffiecient code.
         if(columnList [newCoords.x] == 0){
+            //if there's nothing currently in the column, we send the chip to the bottom
             newCoords.y = (lineCoordsY[lineCoordsY.length-1] + lineCoordsY[lineCoordsY.length-2])/2
             columnList [newCoords.x] +=1;
         } else {
+            //otherwise, we run these check
             for(var i = 0; i<chipArray.length; i++) {
                 //Checking to see if anything is in the same position
                 if(newCoords.x == chipArray[i].x && newCoords.y == chipArray[i].y){
@@ -113,21 +107,193 @@ window.onload = function() {
                     }
                 } 
             }
+            //Adding the chip to the appendix of chips
             columnList [newCoords.x] +=1;
         }
         if(color == "red") {
             chipArray.push(new Chip(newCoords.x, newCoords.y, "red", 40))
             chipArray[chipArray.length-1].create();
+            winChecker(chipArray[chipArray.length-1], "right");
+            winChecker(chipArray[chipArray.length-1], "upright");
+            winChecker(chipArray[chipArray.length-1], "up");
+            winChecker(chipArray[chipArray.length-1], "botright");
             color = "blue";
            } else if(color == "blue"){
             chipArray.push(new Chip(newCoords.x, newCoords.y, "blue", 40))
             chipArray[chipArray.length-1].create();
+            winChecker(chipArray[chipArray.length-1], "right");
+            winChecker(chipArray[chipArray.length-1], "upright");
+            winChecker(chipArray[chipArray.length-1], "up");
+            winChecker(chipArray[chipArray.length-1], "botright");
             color = "red";
         }
     })
+    //determining our directions
+    function winChecker(chip, dir) {    
+        let fwdCount = 0;
+        let bckCount = 0;
     
-    function winChecker() {
+        //I could probably compact this a bit by having it return pre-defined results based on the dir input, but for now I'm just going to focus on getting it working.
+    
+        if(dir == "right"){
+            //  ---
+            let checkFwd = chipArray.find(function(obj) {return (obj.x === chip.x+boardWidth && obj.y === chip.y);});
+            while(true){
+                if(checkFwd!== undefined){
+                    if(checkFwd.color == chip.color){
+                        fwdCount++;
+                        //comparing the original to the next one in line if any
+                        checkFwd = chipArray.find(function(obj) {return (obj.x === chip.x+(boardWidth*(fwdCount+1)) && obj.y === chip.y);});
+                        if(fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        //No color match
+                        break;
+                    }
+                } else {
+                    //No chip in that direction
+                    break;
+                }
+            }
+            //Looking backwards
+            let checkBck = chipArray.find(function(obj) {return (obj.x === chip.x-boardWidth && obj.y === chip.y);});            
+            while(true){
+                if(checkBck!== undefined){
+                    if(checkBck.color == chip.color){
+                        bckCount++;
+                        //comparing the original to the next one in line if any
+                        checkBck = chipArray.find(function(obj) {return (obj.x === chip.x-(boardWidth*(bckCount+1)) && obj.y === chip.y);});
+                        if(fwdCount == 3 || bckCount + fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        //No color Match
+                        break;
+                    }
+                } else {
+                    //No Chip in that direction
+                    break;
+                }
+            }
+        } 
+        else if (dir == "upright"){
+            // /
+            let checkUpFwd = chipArray.find(function(obj) {return (obj.x === chip.x+boardWidth && obj.y === chip.y-boardHeight);});
+            
+            while(true){
+                if(checkUpFwd!== undefined){
+                    if(checkUpFwd.color == chip.color){
+                        fwdCount++;
+                        checkUpFwd = chipArray.find(function(obj) {return (obj.x === chip.x+(boardWidth*(fwdCount+1)) && obj.y === chip.y-(boardHeight*(fwdCount+1)));})
+                        if(fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }        
+    
+            let checkUpBck = chipArray.find(function(obj) {return (obj.x === chip.x-boardWidth && obj.y === chip.y+boardHeight);});
+            while(true){
+                if(checkUpBck!== undefined){
+                    if(checkUpBck.color == chip.color){
+                        bckCount++;
+                        checkUpBck = chipArray.find(function(obj) {return (obj.x === chip.x-(boardWidth*(bckCount+1)) && obj.y === chip.y+(boardHeight*(bckCount+1)));});
+                        if(fwdCount == 3 || bckCount + fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        //No color Match
+                        break;
+                    }
+                } else {
+                    //No Chip in that direction
+                    break;
+                }
+            }
+            
+        } 
+        else if (dir == "up"){
+            // |
+            //We only need to check down because gravity
+              let checkDown = chipArray.find(function(obj) {return (obj.x === chip.x && obj.y === chip.y+boardHeight);});
+
+                while(true){
+                if(checkDown!== undefined){
+                    if(checkDown.color == chip.color){
+                        bckCount++;
+                        checkDown = chipArray.find(function(obj) {return (obj.x === chip.x && obj.y === chip.y+(boardHeight*(bckCount+1)));});
+                        if(fwdCount == 3 || bckCount + fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        //No color Match
+                        break;
+                    }
+                } else {
+                    //No Chip in that direction
+                    break;
+                }
+            }
+        } 
+        else if (dir == "botright"){
+            // \
+            let checkDownFwd = chipArray.find(function(obj) {return (obj.x === chip.x+boardWidth && obj.y === chip.y+boardHeight);});
+            while(true){
+                if(checkDownFwd!== undefined){
+                    if(checkDownFwd.color == chip.color){
+                        bckCount++;
+                        checkDownFwd = chipArray.find(function(obj) {return (obj.x === chip.x+(boardWidth*(bckCount+1)) && obj.y === chip.y+(boardHeight*(bckCount+1)));});
+                        if(fwdCount == 3 || bckCount + fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        //No color Match
+                        break;
+                    }
+                } else {
+                    //No Chip in that direction
+                    break;
+                }
+            }
+            let checkDownBck = chipArray.find(function(obj) {return (obj.x === chip.x-boardWidth && obj.y === chip.y-boardHeight);}); 
+            
+            while(true){
+                if(checkDownBck!== undefined){
+                    if(checkDownBck.color == chip.color){
+                        bckCount++;
+                        checkDownBck = chipArray.find(function(obj) {return (obj.x === chip.x-(boardWidth*(bckCount+1)) && obj.y === chip.y-(boardHeight*(bckCount+1)));});
+                        if(fwdCount == 3 || bckCount + fwdCount == 3){
+                            console.log("win");
+                            break;
+                        }
+                    } else {
+                        //No color Match
+                        break;
+                    }
+                } else {
+                    //No Chip in that direction
+                    break;
+                }
+            }
+        }
+
+    }
+
+    function winTrue(color){
         
+        //Probably going to clear the board and put an element on the screen saying that a win has happened, and give options to play again/typical game interface.
+        console.log("winner: " + color);
     }
     //"Main"
     drawGrid()
