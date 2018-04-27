@@ -4,6 +4,8 @@ body {
 
 canvas {
     border: 1px solid;
+/*    Not your typical Yellow, but my god did that hurt my eyes.*/
+    background: #1A6DEC;
 }
 
 .winScreen {
