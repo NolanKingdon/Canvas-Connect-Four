@@ -21,7 +21,8 @@ window.onload = function() {
     var chipArray = [];
     //start color
     var color = "red";
-    var columnList = {}
+    var columnList = {};
+    var columnListY = {};
         
     canvas.width = innerWidth;
     canvas.height = innerHeight;
@@ -43,21 +44,45 @@ window.onload = function() {
     }
     
     function drawGrid() {
+        //creating rows
         for(var i = 0; i<7; i++) {
             c.moveTo(0, boardHeight*i);
             c.lineTo(innerWidth, boardHeight*i);
             c.stroke();
             lineCoordsY.push(boardHeight*i);
         }
+        //creating columns
         for(var i = 0; i<8; i++) {
             c.moveTo(boardWidth*i, 0);
             c.lineTo(boardWidth*i, innerHeight);
             c.stroke();
             lineCoordsX.push(boardWidth*i);
         }
+        
+        //Making our column list for first move drop
         for(var i = 0; i<lineCoordsX.length; i++) {
             if(i!=lineCoordsX.length-1){
                 columnList [(lineCoordsX[i]+lineCoordsX[i+1])/2] = 0;
+            }
+        }        
+        //Making our row list for first move drop
+        for(var i = 0; i<lineCoordsY.length; i++) {
+            if(i!=lineCoordsY.length-1){
+                columnListY [(lineCoordsY[i]+lineCoordsY[i+1])/2] = 0;
+            }
+        }
+        
+        let xCenters = Object.keys(columnList);
+        let yCenters = Object.keys(columnListY);
+        
+        for(var j = 0; j<yCenters.length; j++){
+            
+            for(var i = 0; i<xCenters.length; i++){
+                c.beginPath()
+                c.arc(xCenters[i], yCenters[j], 41, 0, Math.PI*2);
+                c.fillStyle = "white";
+                c.fill();
+                c.stroke();
             }
         }
     }   
@@ -122,9 +147,9 @@ window.onload = function() {
             winChecker(chipArray[chipArray.length-1], "upright");
             winChecker(chipArray[chipArray.length-1], "up");
             winChecker(chipArray[chipArray.length-1], "botright");
-            color = "blue";
-           } else if(color == "blue"){
-            chipArray.push(new Chip(newCoords.x, newCoords.y, "blue", 40))
+            color = "yellow";
+           } else if(color == "yellow"){
+            chipArray.push(new Chip(newCoords.x, newCoords.y, "yellow", 40))
             chipArray[chipArray.length-1].create();
             winChecker(chipArray[chipArray.length-1], "right");
             winChecker(chipArray[chipArray.length-1], "upright");
@@ -298,13 +323,15 @@ window.onload = function() {
     function winTrue(color){
         //Was running into issues having this completely styled in the CSS file (mostly z-index related things where you would be clicking on the div not the canvas) so I put it here instead
         //This also adds the benefit of stopping the player from making moves once a win has been detected
-        if(color = "red") {
+
+        if(color == "red") {
             score[0] +=1;
-        } else if(color = "blue") {
+        } else if(color == "yellow") {
             score[1] +=1;
         }
+        winMessage.style.marginTop = (innerHeight/3) + "px";
         winMessage.innerHTML = "Winner: " + color + "!";
-        scoreMessage.innerHTML = "Red: " + score[0] + " Blue: " + score[1];
+        scoreMessage.innerHTML = "Red: " + score[0] + " Yellow: " + score[1];
         winScreen.style.top = "0px";
         winScreen.style.opacity = 0.8;
         winScreen.style.backgroundColor = color;
@@ -314,7 +341,8 @@ window.onload = function() {
             //Resetting the div
             winMessage.innerHTML = "";
             scoreMessage.innerHTML = "";
-            winScreen.style.top = "-60px";
+            //Pushing it way off screen so we don't have to worry about accidentally clicking anything. Not my proudest solution.
+            winScreen.style.top = "-600px";
             winScreen.style.opacity = 0;
             winScreen.style.backgroundColor = "none";
             winScreen.style.height = 0 + "%";
@@ -334,7 +362,8 @@ window.onload = function() {
 }
 
 //==== Issues that need attention ====
-// Black circle that appears after board clear
-// Score not stacking after the game is over (Always adds to red)
-// General appearance
-
+// Black circle that appears after board clear - Fixed
+// Score not stacking after the game is over (Always adds to red) - Fixed.
+// General appearance - Improved, but still needs work.
+// Clean up messy code
+// Make sure that extra large screen and extra small screens are accounted for - Because of how we size the canvas, this is probably going to have to be within the JS file.
