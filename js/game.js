@@ -1,6 +1,10 @@
 window.onload = function() {
     
     var canvas = document.querySelector("canvas");
+    var winScreen = document.getElementsByClassName("winScreen")[0];
+    var winMessage = document.getElementById("winMessage");
+    var scoreMessage = document.getElementById("score");
+    var playAgain = document.getElementById("winButton");
     //My browser seems to not want to fit to screen - adds scroll bars. This is a temp. Workaround
     var innerHeight = window.innerHeight-6;
     var innerWidth = window.innerWidth-6;
@@ -9,6 +13,7 @@ window.onload = function() {
     var boardWidth = Math.ceil(innerWidth/7);
     var lineCoordsX = []
     var lineCoordsY = []
+    var score = [0,0];
     var newCoords = [
         x = undefined,
         y = undefined
@@ -65,7 +70,7 @@ window.onload = function() {
             if(e.x > lineCoordsX[xCount]){
                 xCount ++;
             //Checking for our far right line
-            } else if (e.x < lineCoordsX[xCount]){
+            } else if (e.x <= lineCoordsX[xCount]){
                 //Centering the click
                 newCoords.x = (lineCoordsX[xCount] + lineCoordsX[xCount-1])/2;
                 break;
@@ -75,7 +80,7 @@ window.onload = function() {
         while(true){
             if(e.y > lineCoordsY[yCount]){
                 yCount++;
-            } else if(e.y < lineCoordsY[yCount]){
+            } else if(e.y <= lineCoordsY[yCount]){
                 newCoords.y = (lineCoordsY[yCount] + lineCoordsY[yCount-1])/2
                 break;
             }
@@ -145,7 +150,7 @@ window.onload = function() {
                         //comparing the original to the next one in line if any
                         checkFwd = chipArray.find(function(obj) {return (obj.x === chip.x+(boardWidth*(fwdCount+1)) && obj.y === chip.y);});
                         if(fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -166,7 +171,7 @@ window.onload = function() {
                         //comparing the original to the next one in line if any
                         checkBck = chipArray.find(function(obj) {return (obj.x === chip.x-(boardWidth*(bckCount+1)) && obj.y === chip.y);});
                         if(fwdCount == 3 || bckCount + fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -189,7 +194,7 @@ window.onload = function() {
                         fwdCount++;
                         checkUpFwd = chipArray.find(function(obj) {return (obj.x === chip.x+(boardWidth*(fwdCount+1)) && obj.y === chip.y-(boardHeight*(fwdCount+1)));})
                         if(fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -207,7 +212,7 @@ window.onload = function() {
                         bckCount++;
                         checkUpBck = chipArray.find(function(obj) {return (obj.x === chip.x-(boardWidth*(bckCount+1)) && obj.y === chip.y+(boardHeight*(bckCount+1)));});
                         if(fwdCount == 3 || bckCount + fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -232,7 +237,7 @@ window.onload = function() {
                         bckCount++;
                         checkDown = chipArray.find(function(obj) {return (obj.x === chip.x && obj.y === chip.y+(boardHeight*(bckCount+1)));});
                         if(fwdCount == 3 || bckCount + fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -254,7 +259,7 @@ window.onload = function() {
                         bckCount++;
                         checkDownFwd = chipArray.find(function(obj) {return (obj.x === chip.x+(boardWidth*(bckCount+1)) && obj.y === chip.y+(boardHeight*(bckCount+1)));});
                         if(fwdCount == 3 || bckCount + fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -274,7 +279,7 @@ window.onload = function() {
                         bckCount++;
                         checkDownBck = chipArray.find(function(obj) {return (obj.x === chip.x-(boardWidth*(bckCount+1)) && obj.y === chip.y-(boardHeight*(bckCount+1)));});
                         if(fwdCount == 3 || bckCount + fwdCount == 3){
-                            console.log("win");
+                            winTrue(color);
                             break;
                         }
                     } else {
@@ -291,12 +296,45 @@ window.onload = function() {
     }
 
     function winTrue(color){
-        
-        //Probably going to clear the board and put an element on the screen saying that a win has happened, and give options to play again/typical game interface.
-        console.log("winner: " + color);
+        //Was running into issues having this completely styled in the CSS file (mostly z-index related things where you would be clicking on the div not the canvas) so I put it here instead
+        //This also adds the benefit of stopping the player from making moves once a win has been detected
+        if(color = "red") {
+            score[0] +=1;
+        } else if(color = "blue") {
+            score[1] +=1;
+        }
+        winMessage.innerHTML = "Winner: " + color + "!";
+        scoreMessage.innerHTML = "Red: " + score[0] + " Blue: " + score[1];
+        winScreen.style.top = "0px";
+        winScreen.style.opacity = 0.8;
+        winScreen.style.backgroundColor = color;
+        winScreen.style.height = 100 + "%";
+
+        playAgain.addEventListener("click", function(){
+            //Resetting the div
+            winMessage.innerHTML = "";
+            scoreMessage.innerHTML = "";
+            winScreen.style.top = "-60px";
+            winScreen.style.opacity = 0;
+            winScreen.style.backgroundColor = "none";
+            winScreen.style.height = 0 + "%";
+            //resetting the board
+            chipArray = [];
+            columnList = {};
+            lineCoordsX = [];
+            lineCoordsY = [];
+            color = "red";
+            //Oddly Enough, it clears everything but a small black circle. ... Is now a feature - you can see the winning move in the next game.
+            c.clearRect(0,0, canvas.width, canvas.height);
+            drawGrid();
+        })
     }
     //"Main"
     drawGrid()
 }
 
+//==== Issues that need attention ====
+// Black circle that appears after board clear
+// Score not stacking after the game is over (Always adds to red)
+// General appearance
 
