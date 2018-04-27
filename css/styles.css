@@ -5,3 +5,15 @@ body {
 canvas {
     border: 1px solid;
 }
+
+.winScreen {
+    border: 1px solid;
+    position: absolute;
+    top: -60px;
+    opacity: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    background: none;
+    transition: 1s;
+}
