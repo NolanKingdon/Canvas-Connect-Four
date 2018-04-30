@@ -1,13 +1,13 @@
 window.onload = function() {
-    
     var canvas = document.querySelector("canvas");
     var winScreen = document.getElementsByClassName("winScreen")[0];
     var winMessage = document.getElementById("winMessage");
     var scoreMessage = document.getElementById("score");
     var playAgain = document.getElementById("winButton");
     //My browser seems to not want to fit to screen - adds scroll bars. This is a temp. Workaround
-    var innerHeight = window.innerHeight-6;
-    var innerWidth = window.innerWidth-6;
+    //Making sure the height doesn't stretch the game board too much
+    var innerHeight = (window.innerHeight> 670)? 670 : window.innerHeight-6;
+    var innerWidth = (window.innerWidth > 1350)? 1350 : window.innerWidth-6;
     var c = canvas.getContext("2d");
     var boardHeight = Math.ceil(innerHeight/6);
     var boardWidth = Math.ceil(innerWidth/7);
@@ -26,12 +26,14 @@ window.onload = function() {
         
     canvas.width = innerWidth;
     canvas.height = innerHeight;
+    //To avoid weird sliding animations later on, I'm going to declare the width here
+    winScreen.style.width = canvas.width + "px";
 
     function Chip(x,y,color, rad){
         this.x = x;
         this.y = y;
         this.color = color;
-        //I'd like rad to be derrived from the screen size as well -- Will add later
+        //I'd like rad to be derrived from the screen size as well -- specifically height. Would require the change to be made in the drawgrid too
         this.rad = rad;
         
         this.create = function(){
@@ -87,7 +89,7 @@ window.onload = function() {
         }
     }   
     
-    canvas.addEventListener("click", function(e){
+    function chipPosition(e) {
         var xCount = 0;
         //Centering the Chips
         while(true){
@@ -140,6 +142,9 @@ window.onload = function() {
             //Adding the chip to the appendix of chips
             columnList [newCoords.x] +=1;
         }
+    }
+    
+    function chipCheck(){
         if(color == "red") {
             chipArray.push(new Chip(newCoords.x, newCoords.y, "red", 40))
             chipArray[chipArray.length-1].create();
@@ -157,13 +162,13 @@ window.onload = function() {
             winChecker(chipArray[chipArray.length-1], "botright");
             color = "red";
         }
-    })
-    //determining our directions
+    }
+    
     function winChecker(chip, dir) {    
         let fwdCount = 0;
         let bckCount = 0;
     
-        //I could probably compact this a bit by having it return pre-defined results based on the dir input, but for now I'm just going to focus on getting it working.
+        //I could not think of a way to condense this any more than it already is. Suggestions are welcome.
     
         if(dir == "right"){
             //  ---
@@ -319,32 +324,31 @@ window.onload = function() {
         }
 
     }
-
     function winTrue(color){
         //Was running into issues having this completely styled in the CSS file (mostly z-index related things where you would be clicking on the div not the canvas) so I put it here instead
         //This also adds the benefit of stopping the player from making moves once a win has been detected
-
+        
         if(color == "red") {
             score[0] +=1;
+            winMessage.style.color = "white";
+            scoreMessage.style.color = "white";
         } else if(color == "yellow") {
             score[1] +=1;
+            winMessage.style.color = "black";
+            scoreMessage.style.color = "black";
         }
-        winMessage.style.marginTop = (innerHeight/3) + "px";
+        winMessage.style.marginTop = (boardHeight) + "px";
         winMessage.innerHTML = "Winner: " + color + "!";
-        scoreMessage.innerHTML = "Red: " + score[0] + " Yellow: " + score[1];
+        scoreMessage.innerHTML = "Red: " + score[0] + "<br/>Yellow: " + score[1];
         winScreen.style.top = "0px";
-        winScreen.style.opacity = 0.8;
-        winScreen.style.backgroundColor = color;
-        winScreen.style.height = 100 + "%";
+        winScreen.style.background = (color === "red")? "rgba(255, 0, 0, 0.8)" : "rgba(255, 248, 45, 0.8)";
+        winScreen.style.height = canvas.height + "px";
+        winScreen.style.width = canvas.width + "px";
 
         playAgain.addEventListener("click", function(){
-            //Resetting the div
-            winMessage.innerHTML = "";
-            scoreMessage.innerHTML = "";
             //Pushing it way off screen so we don't have to worry about accidentally clicking anything. Not my proudest solution.
-            winScreen.style.top = "-600px";
-            winScreen.style.opacity = 0;
-            winScreen.style.backgroundColor = "none";
+            winScreen.style.top = "-750px";
+            winScreen.style.background = "rgba(255,255,255, 0)";
             winScreen.style.height = 0 + "%";
             //resetting the board
             chipArray = [];
@@ -352,18 +356,19 @@ window.onload = function() {
             lineCoordsX = [];
             lineCoordsY = [];
             color = "red";
-            //Oddly Enough, it clears everything but a small black circle. ... Is now a feature - you can see the winning move in the next game.
             c.clearRect(0,0, canvas.width, canvas.height);
             drawGrid();
         })
     }
+    
+    canvas.addEventListener("click", function(e){
+        //Getting where the chip will be placed
+        chipPosition(e);
+        //Placing the chip
+        chipCheck();
+        
+    })
+    
     //"Main"
     drawGrid()
 }
-
-//==== Issues that need attention ====
-// Black circle that appears after board clear - Fixed
-// Score not stacking after the game is over (Always adds to red) - Fixed.
-// General appearance - Improved, but still needs work.
-// Clean up messy code
-// Make sure that extra large screen and extra small screens are accounted for - Because of how we size the canvas, this is probably going to have to be within the JS file.
