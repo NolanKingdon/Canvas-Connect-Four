@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    background: #ccc; 
 }
 
 canvas {
@@ -8,14 +9,51 @@ canvas {
     background: #1A6DEC;
 }
 
+h1 {
+    font-size: 6rem;
+}
+
+h2 {
+    font-size: 4rem;
+}
+
+button {
+    font-size: 2rem;
+}
+h1, h2, button {
+    font-family: 'Amatic SC', cursive;
+}
+
 .winScreen {
     border: 1px solid;
     position: absolute;
-    top: -60px;
-    opacity: 0;
-    width: 100%;
+    top: -750px;
+    opacity: 1;
     text-align: center;
     color: white;
     background: none;
     transition: 1s;
+}
+
+#winButton {
+    display: inline-block;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #4359FF;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px #000;
+}
+
+#winButton:hover {
+    box-shadow: 0 3px #000;
+    transition: 0.3s;
+    transform: translateY(2px);
+}
+
+#winButton:active {
+    box-shadow: 0 1px #000;
+    transform: translateY(4px);
 }
