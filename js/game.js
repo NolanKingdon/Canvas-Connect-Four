@@ -1,4 +1,8 @@
 window.onload = function() {
+    
+    var mainScreen = document.getElementsByClassName("mainPage")[0];
+    var playButton = document.getElementById("playButton");
+    
     var canvas = document.querySelector("canvas");
     var winScreen = document.getElementsByClassName("winScreen")[0];
     var winMessage = document.getElementById("winMessage");
@@ -26,6 +30,8 @@ window.onload = function() {
         
     canvas.width = innerWidth;
     canvas.height = innerHeight;
+    mainScreen.style.width = canvas.width + "px";
+    mainScreen.style.height = canvas.height + "px";
     //To avoid weird sliding animations later on, I'm going to declare the width here
     winScreen.style.width = canvas.width + "px";
 
@@ -361,14 +367,17 @@ window.onload = function() {
         })
     }
     
+    playButton.addEventListener("click", function(){
+        mainScreen.style.left = "-" + innerWidth + "px";
+    });
+    
     canvas.addEventListener("click", function(e){
         //Getting where the chip will be placed
         chipPosition(e);
         //Placing the chip
         chipCheck();
-        
     })
     
-    //"Main"
+    //"Main" -- Starts program
     drawGrid()
 }

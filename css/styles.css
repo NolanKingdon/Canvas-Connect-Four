@@ -20,10 +20,46 @@ h2 {
 button {
     font-size: 2rem;
 }
+
+/*Main page*/
+
+.mainPage {
+    border: none;
+    position: absolute;
+    text-align: center;
+    left: 0;
+    color: white;
+    background: rgba(0,0,0,0.85);
+    transition: 1s;
+}
+
+#playButton {
+    display: inline-block;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #4359FF;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px #000;
+}
+
+#playButton:hover {
+    box-shadow: 0 3px #000;
+    transition: 0.3s;
+    transform: translateY(2px);
+}
+
+#playButton:active {
+    box-shadow: 0 1px #000;
+    transform: translateY(4px);
+}
+
+/*Win Screen and contents*/
 h1, h2, button {
     font-family: 'Amatic SC', cursive;
 }
-
 .winScreen {
     border: 1px solid;
     position: absolute;
